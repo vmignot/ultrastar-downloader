@@ -4,13 +4,13 @@ set -e
 
 function show_usage() {
   echo
-  echo "  Usage: ${0} URL"
+  echo "  Usage: ${0} URL [ NAME ]"
   echo
 }
 
 
 URL=$1
-DIR_NAME=$2
+CLEAN_FILENAME=$2
 
 
 TMP_DIR=$(mktemp -d)
@@ -21,17 +21,21 @@ RAW_FILENAME=$(ls ${TMP_DIR})
 
 CLEAN_FILENAME_EXT=$(echo "${RAW_FILENAME}" | sed "s/_/ /g")
 
-CLEAN_FILENAME=$(basename "${CLEAN_FILENAME_EXT}" .mp4)
-CLEAN_FILENAME=$(basename "${CLEAN_FILENAME}" .mkv)
+if [[ -z "${CLEAN_FILENAME}" ]] ; then
+	CLEAN_FILENAME=$(basename "${CLEAN_FILENAME_EXT}" .mp4)
+	CLEAN_FILENAME=$(basename "${CLEAN_FILENAME}" .mkv)
+fi
+
 
 mkdir -p "${CLEAN_FILENAME}"
 mv "${TMP_DIR}/${RAW_FILENAME}" "${CLEAN_FILENAME}/${CLEAN_FILENAME_EXT}"
 
 ffmpeg -y -i "${CLEAN_FILENAME}/${CLEAN_FILENAME_EXT}" -q:a 0 -map a "${CLEAN_FILENAME}/${CLEAN_FILENAME}.mp3"
-sacad 
+sacad "${CLEAN_FILENAME}" "${CLEAN_FILENAME}" 600 "${CLEAN_FILENAME}/${CLEAN_FILENAME} [CO].png"
 
 
 echo "#MP3:${CLEAN_FILENAME}.mp3" > "${CLEAN_FILENAME}/${CLEAN_FILENAME}.txt"
+echo "#COVER:${CLEAN_FILENAME_EXT} [CO].png" >> "${CLEAN_FILENAME}/${CLEAN_FILENAME}.txt"
 echo "#VIDEO:${CLEAN_FILENAME_EXT}" >> "${CLEAN_FILENAME}/${CLEAN_FILENAME}.txt"
 
-
+rm -rf "${TMP_DIR}"
