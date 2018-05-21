@@ -16,6 +16,10 @@ function show_usage() {
   echo "  - USDB_ANIMUX_DE_PASSWORD"
 }
 
+if [[ $# -eq 0 ]]; then
+  show_usage
+  exit 0
+fi
 
 URL=$1
 CLEAN_FILENAME=$2
